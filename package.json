@@ -4,11 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://sjl-git:tablemanager1@github.com/sjl-git/realtime-chat.git"
+    "start": "ts-node app.ts"
   },
   "author": "",
   "license": "ISC",

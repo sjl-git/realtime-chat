@@ -4,8 +4,13 @@ import { roomRouter, userRouter, friendRouter } from './src/router'
 import { errorHandler } from './src/controller/errorHandler'
 
 const app = express()
+const PORT = 3000
 
 app.use(bodyParser.json())
+
+app.get('/', (req, res) => {
+  res.send('healty')
+})
 
 app.use('/user', userRouter)
 app.use('/room', roomRouter)
@@ -13,6 +18,7 @@ app.use('/friend', friendRouter)
 
 app.use(errorHandler)
 
-app.listen(3000, () => {
-  console.log('http://localhost:3000')
+app.listen(PORT, () => {
+  console.log('listening on port')
+  console.log(PORT)
 })
