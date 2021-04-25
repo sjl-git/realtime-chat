@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { getFriendReq, insertFriend, rejectFriend } from "../../model/entity/friend";
+import { getFriendReq, insertFriend, rejectFriend, getFriends } from "../../model/entity/friend";
 import { errCode } from "../errorHandler";
 
 export const sendFriendReqCtrl: RequestHandler = async (req, res, next) => {
@@ -20,13 +20,13 @@ export const sendFriendReqCtrl: RequestHandler = async (req, res, next) => {
 }
 
 export const getReceivedFriendReqCtrl: RequestHandler = async (req, res, next) => {
-  const { to='ss' } = req.body
+  const { to = 'ss' } = req.body
 
   try {
     const requests = await getFriendReq(to)
 
     return res.send(requests)
-  } catch(err) {
+  } catch (err) {
     return next(new Error(errCode[err.message]))
   }
 }
@@ -41,6 +41,17 @@ export const rejectFriendCtrl: RequestHandler = async (req, res, next) => {
       code: 200,
       message: '친구 요청을 거절했습니다.'
     })
+  } catch (err) {
+    return next(new Error(errCode[err.message]))
+  }
+}
+
+export const getFriendsCtrl: RequestHandler = async (req, res, next) => {
+  const { userId = 'sungje' } = req.body
+
+  try {
+    const friends = await getFriends(userId)
+    return res.send(friends)
   } catch (err) {
     return next(new Error(errCode[err.message]))
   }

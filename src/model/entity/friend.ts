@@ -26,7 +26,7 @@ export const getFriendReq = async (to: string) => {
     await connectMysql()
 
     const requests = await createQueryBuilder(FRIEND)
-      .where("`to`=:to", { to: 'to' })
+      .where("`to`=:to", { to: to })
       .andWhere("status=:status", { status: 'pending'})
       .getMany()
 
@@ -81,6 +81,22 @@ export const rejectFriend = async (id: number) => {
     return
   } catch (err) {
     console.log(err)
+    throw new Error('003')
+  }
+}
+
+export const getFriends = async (user: string) => {
+  try {
+    await connectMysql()
+
+    const requests = await createQueryBuilder(FRIEND)
+      .where("`to`=:to OR `from`=:from", { to: user, from: user })
+      .andWhere("status=:status", { status: 'success'})
+      .getMany()
+
+    return requests
+  } catch (err) {
+    console.log(err.message)
     throw new Error('003')
   }
 }

@@ -1,13 +1,15 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import { getReceivedFriendReqCtrl } from './src/controller/friend'
+import { roomRouter, userRouter, friendRouter } from './src/router'
 import { errorHandler } from './src/controller/errorHandler'
 
 const app = express()
 
 app.use(bodyParser.json())
 
-app.get('/', getReceivedFriendReqCtrl)
+app.use('/user', userRouter)
+app.use('/room', roomRouter)
+app.use('/friend', friendRouter)
 
 app.use(errorHandler)
 
