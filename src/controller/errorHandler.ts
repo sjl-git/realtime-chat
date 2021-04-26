@@ -29,6 +29,7 @@ export const errCode = {
 
 
 export const errorHandler: ErrorRequestHandler = async (err, req, res, next) => {
+  console.log(err)
   const { code: errCode, message: errMessage} = error[err.message] || error['INTERNAL_SERVER_ERROR']
 
   return res.send({

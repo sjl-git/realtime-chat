@@ -7,7 +7,7 @@ type RoomType = 'channel' | 'dm'
 @Entity({ name: "ROOM", synchronize: false })
 export class ROOM {
   @PrimaryGeneratedColumn({ name: "id" })
-  id: string
+  id: number
 
   @Column({ type: "enum", enum: ["channel", "dm"], name: "type" })
   type: string

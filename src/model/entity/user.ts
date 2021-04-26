@@ -1,3 +1,4 @@
+import { create } from "node:domain"
 import { userInfo } from "node:os"
 import "reflect-metadata"
 import { Column, createQueryBuilder, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
@@ -18,9 +19,8 @@ export class USER {
   @Column({ type: "varchar", name: "pwd" })
   pwd: string
 
-  @ManyToOne(() => ROOM, room => room.id)
-  @JoinColumn({name: 'channel_id'})
-  room: ROOM
+  @Column({ type: 'int', name: 'channel_id', })
+  channel_id: number
 
   @Column({ type: "datetime", name: "created_at" })
   created_at: Date
@@ -68,14 +68,27 @@ export const enterRoom = async (userId: string, roomId: number) => {
   try {
     const cnn = await connectMysql()
 
-    const [user, room] = await Promise.all([
-      await getUserById(userId),
-      await getRoomById(roomId)
-    ])
+    const user = await getUserById(userId)
 
-    user.room = room
+    user.channel_id = roomId
     await cnn.manager.save(user)
 
+  } catch (err) {
+    console.log(err.message)
+    throw new Error('003')
+  }
+}
+
+export const countUsers = async (roomId: number) => {
+  try {
+    await connectMysql()
+
+    const count = await createQueryBuilder(USER)
+      .where("channel_id=:channelId", {channelId: roomId})
+      .getCount()
+
+    return count
+    
   } catch (err) {
     console.log(err.message)
     throw new Error('003')

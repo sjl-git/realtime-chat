@@ -4,6 +4,6 @@ import { getChannelsCtrl } from "../controller/room"
 
 const roomRouter = Router()
 
-roomRouter.post('/', getChannelsCtrl)
+roomRouter.get('/', getChannelsCtrl)
 
 export default roomRouter
