@@ -16,6 +16,10 @@ const error = {
   'FRIEND_DUP_ERR': {
     code: 400,
     message: '중복된 친구 요청입니다.'
+  },
+  'WRONG_USER_INFO': {
+    code: 400,
+    message: '로그인 정보가 올바르지 않습니다.'
   }
 }
 
@@ -23,7 +27,8 @@ export const errCode = {
   '001': 'BAD_REQUEST',
   '002': 'USER_DUP_ERR',
   '003': 'INTERNAL_SERVER_ERROR',
-  '004': 'FRIEND_DUP_ERR'
+  '004': 'FRIEND_DUP_ERR',
+  '005': 'WRONG_USER_INFO'
 }
 
 

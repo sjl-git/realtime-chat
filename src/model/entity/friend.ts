@@ -20,14 +20,12 @@ export class FRIEND {
   status: FriendStatus
 }
 
-export const getFriendReq = async (to: string) => {
-
+export const getFriendReq = async (to) => {
   try {
     await connectMysql()
 
     const requests = await createQueryBuilder(FRIEND)
-      .where("`to`=:to", { to: to })
-      .andWhere("status=:status", { status: 'pending'})
+      .where("`to`=:to AND status=:status", { to, status: 'pending' })
       .getMany()
 
     return requests
@@ -43,6 +41,8 @@ export const insertFriend = async (from: string, to: string) => {
     from,
     to
   }
+
+  console.log(params)
 
   try {
     await connectMysql()
@@ -61,6 +61,28 @@ export const insertFriend = async (from: string, to: string) => {
       throw new Error('004')
     throw new Error('003')
   }
+}
+
+export const acceptFriend = async (id: number) => {
+  const params = {
+    id
+  }
+
+  try {
+    await connectMysql()
+
+    await createQueryBuilder()
+      .update(FRIEND)
+      .set({ status: 'success' })
+      .where('id=:id', params)
+      .execute()
+
+    return
+  } catch (err) {
+    console.log(err)
+    throw new Error('003')
+  }
+
 }
 
 export const rejectFriend = async (id: number) => {
@@ -85,13 +107,12 @@ export const rejectFriend = async (id: number) => {
   }
 }
 
-export const getFriends = async (user: string) => {
+export const getFriends = async (user) => {
   try {
     await connectMysql()
 
     const requests = await createQueryBuilder(FRIEND)
-      .where("`to`=:to OR `from`=:from", { to: user, from: user })
-      .andWhere("status=:status", { status: 'success'})
+      .where("(`to`=:to OR `from`=:from) AND status=:status", { to: user, from: user, status: 'success' })
       .getMany()
 
     return requests

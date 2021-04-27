@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
-import { getFriendReq, insertFriend, rejectFriend, getFriends } from "../../model/entity/friend";
+import { getFriendReq, insertFriend, rejectFriend, getFriends, acceptFriend } from "../../model/entity/friend";
+import { getUsers } from "../../model/entity/user";
 import { errCode } from "../errorHandler";
 
 export const sendFriendReqCtrl: RequestHandler = async (req, res, next) => {
-  const { from = 'sungje', to = 'ss' } = req.body
+  const { from, to } = req.body
   if (!from || !to)
     return next(new Error(errCode['001']))
 
@@ -20,26 +21,55 @@ export const sendFriendReqCtrl: RequestHandler = async (req, res, next) => {
 }
 
 export const getReceivedFriendReqCtrl: RequestHandler = async (req, res, next) => {
-  const { to = 'ss' } = req.body
+  const { to } = req.query
 
   try {
+    const users = await getUsers(to)
+    const userMap = new Map(users.map(user => [user.id, user.created_at]))
+
     const requests = await getFriendReq(to)
 
-    return res.send(requests)
+    const friendInfo = requests.map(request => {
+      return {
+        id: request.id,
+        from: request.from,
+        createdAt: userMap.get(request.from)
+      }
+    })
+
+    return res.send({
+      code: 200,
+      friendInfo
+    })
   } catch (err) {
     return next(new Error(errCode[err.message]))
   }
 }
 
+export const acceptFriendCtrl: RequestHandler = async (req, res, next) => {
+  const { friendId } = req.body
+
+  try{
+    await acceptFriend(friendId)
+
+    return res.send({
+      code: 200,
+      message: '친구 요청을 수락햇습니다.'
+    })
+  } catch(err) {
+    return next(new Error(errCode[err.message]))
+  }
+}
+
 export const rejectFriendCtrl: RequestHandler = async (req, res, next) => {
-  const { friendId = 0 } = req.body
+  const { friendId } = req.body
 
   try {
     await rejectFriend(friendId)
 
     return res.send({
       code: 200,
-      message: '친구 요청을 거절했습니다.'
+      message: '친구를 거절했습니다.'
     })
   } catch (err) {
     return next(new Error(errCode[err.message]))
@@ -47,11 +77,28 @@ export const rejectFriendCtrl: RequestHandler = async (req, res, next) => {
 }
 
 export const getFriendsCtrl: RequestHandler = async (req, res, next) => {
-  const { userId = 'sungje' } = req.body
+  const { userId } = req.query
+
+  const users = await getUsers(userId)
+  const userMap = new Map(users.map(user => [user.id, user.created_at]))
 
   try {
     const friends = await getFriends(userId)
-    return res.send(friends)
+
+    const friendInfo = friends.map((friend) => {
+      let friendId = (friend.from === userId)? friend.to: friend.from
+      
+      return {
+        id: friend.id,
+        friendId,
+        createdAt : userMap.get(friendId)
+      }
+    })
+
+    return res.send({
+      code: 200,
+      friendInfo
+    })
   } catch (err) {
     return next(new Error(errCode[err.message]))
   }

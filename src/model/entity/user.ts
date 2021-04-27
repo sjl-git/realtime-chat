@@ -55,13 +55,27 @@ export const getUserById = async (userId: string) => {
   return user
 }
 
-export const getUsers = async () => {
+export const getUsers = async (userId) => {
   await connectMysql()
 
   const users = await createQueryBuilder(USER)
+    .where('id!=:userId', { userId })
     .getMany()
 
   return users
+}
+
+export const getUser = async (id, pwd) => {
+  await connectMysql()
+
+  const user = await createQueryBuilder(USER)
+    .where('id=:id', { id })
+    .andWhere('pwd=:pwd', { pwd })
+    .getOne()
+
+  if (!user)
+    throw new Error('005')
+  return user
 }
 
 export const enterRoom = async (userId: string, roomId: number) => {
@@ -79,16 +93,31 @@ export const enterRoom = async (userId: string, roomId: number) => {
   }
 }
 
+export const leaveRoom = async (userId: string) => {
+  try {
+    const cnn = await connectMysql()
+
+    const user = await getUserById(userId)
+
+    user.channel_id = null
+    await cnn.manager.save(user)
+
+  } catch (err) {
+    console.log(err.message)
+    throw new Error('003')
+  }
+}
+
 export const countUsers = async (roomId: number) => {
   try {
     await connectMysql()
 
     const count = await createQueryBuilder(USER)
-      .where("channel_id=:channelId", {channelId: roomId})
+      .where("channel_id=:channelId", { channelId: roomId })
       .getCount()
 
     return count
-    
+
   } catch (err) {
     console.log(err.message)
     throw new Error('003')
